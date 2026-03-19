@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyTracker - 学习陪伴神器</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bili-pink: #FB7299;
+      --bili-blue: #00A1D6;
+      --dark-bg: #1a1a2e;
+      --card-bg: #16213e;
+      --text-white: #FFFFFF;
+      --text-gray: #a0a0a0;
+    }
+
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #2d1f3d 100%);
+      min-height: 100vh;
+      color: var(--text-white);
+      overflow-x: hidden;
+    }
+
+    /* 背景动漫图 - 可配置透明度 */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://pic.imgdb.cn/item/6789e4d4d0e0a243d4c0e3f7.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部区域 */
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(251, 114, 153, 0.4);
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, var(--bili-pink), var(--bili-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-gray);
+      font-size: 1.1rem;
+    }
+
+    /* 中部下载区域 */
+    .download-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 60px;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 60px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--bili-pink) 0%, #ff8eb8 100%);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 40px rgba(251, 114, 153, 0.5);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .download-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 50px rgba(251, 114, 153, 0.6);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
+    .version-tag {
+      display: inline-block;
+      background: var(--bili-blue);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-left: 10px;
+    }
+
+    .download-hint {
+      margin-top: 20px;
+      color: var(--text-gray);
+      font-size: 0.9rem;
+    }
+
+    /* 装饰性元素 */
+    .decorations {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--bili-pink);
+      border-radius: 50%;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* 历史版本区域 */
+    .history-section {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .history-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: var(--bili-pink);
+    }
+
+    .version-list {
+      list-style: none;
+    }
+
+    .version-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      transition: background 0.3s;
+    }
+
+    .version-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .version-info {
+      flex: 1;
+    }
+
+    .version-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .version-changelog {
+      font-size: 0.85rem;
+      color: var(--text-gray);
+    }
+
+    .version-download {
+      padding: 8px 20px;
+      background: rgba(251, 114, 153, 0.2);
+      color: var(--bili-pink);
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+
+    .version-download:hover {
+      background: var(--bili-pink);
+      color: white;
+    }
+
+    /* 页脚 */
+    footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-gray);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--bili-blue);
+      text-decoration: none;
+    }
+
+    /* 响应式 */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      .download-btn { 
+        padding: 18px 40px; 
+        font-size: 1.2rem; 
+      }
+      .version-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景动漫图 -->
+  <div class="background-overlay"></div>
+  
+  <!-- 装饰星星 -->
+  <div class="decorations">
+    <div class="star" style="top: 10%; left: 10%; animation-delay: 0s;"></div>
+    <div class="star" style="top: 20%; left: 80%; animation-delay: 0.5s;"></div>
+    <div class="star" style="top: 60%; left: 5%; animation-delay: 1s;"></div>
+    <div class="star" style="top: 80%; left: 90%; animation-delay: 1.5s;"></div>
+    <div class="star" style="top: 40%; left: 95%; animation-delay: 0.3s;"></div>
+    <div class="star" style="top: 70%; left: 15%; animation-delay: 0.8s;"></div>
+  </div>
+
+  <div class="container">
+    <!-- 顶部 -->
+    <header>
+      <!-- APP图标 -->
+      <img src="https://raw.githubusercontent.com/你的用户名/StudyTracker-Web/main/icon.png" alt="StudyTracker" class="logo" onerror="this.style.display='none'">
+      <h1>📚 StudyTracker</h1>
+      <p class="subtitle">初音未来陪伴的学习神器 | 番茄钟 + 单词本 + 打卡</p>
+    </header>
+
+    <!-- 中部下载 -->
+    <section class="download-section">
+      <a href="https://github.com/你的用户名/StudyTracker-Web/releases/latest/download/StudyTracker-v1.1.0.apk" class="download-btn">
+        📥 下载最新版 <span class="version-tag">v1.1.0</span>
+      </a>
+      <p class="download-hint">支持 Android 5.0+ | 安装前需允许未知来源应用</p>
+    </section>
+
+    <!-- 历史版本 -->
+    <section class="history-section">
+      <h2>📜 往期版本</h2>
+      <ul class="version-list">
+        <li class="version-item">
+          <div class="version-info">
+            <div class="version-name">v1.0.4 - 看板娘初体验</div>
+            <div class="version-changelog">新增初音未来看板娘、Bilibili粉主题色</div>
+          </div>
+          <a href="https://github.com/你的用户名/StudyTracker-Web/releases/tag/v1.0.4" class="version-download">下载</a>
+        </li>
+        <li class="version-item">
+          <div class="version-info">
+            <div class="version-name">v1.0.3 - 番茄钟优化</div>
+            <div class="version-changelog">修复计时器bug、沉浸模式优化</div>
+          </div>
+          <a href="https://github.com/你的用户名/StudyTracker-Web/releases/tag/v1.0.3" class="version-download">下载</a>
+        </li>
+        <li class="version-item">
+          <div class="version-info">
+            <div class="version-name">v1.0.2 - 基础功能版</div>
+            <div class="version-changelog">番茄钟、单词本、打卡功能</div>
+          </div>
+          <a href="https://github.com/你的用户名/StudyTracker-Web/releases/tag/v1.0.2" class="version-download">下载</a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+      <p>© 2024 StudyTracker | 由 <a href="#">OpenClaw AI</a> 驱动</p>
+      <p>二次元风格学习陪伴APP</p>
+    </footer>
+  </div>
+</body>
+</html>
